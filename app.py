@@ -21,15 +21,15 @@ RESORT_DATA = {
         "csv": "data/nozawa_data.csv" # あなたのCSVファイルのパス
     },
     "白馬": {
-        "model": "data/hakuba_model.pkl",
+        "model": "data/nozawa_model.pkl",
         "csv": "data/Hakuba_data.csv" # (例)
     },
     "湯沢": {
-        "model": "data/yuzawa_model.pkl",
+        "model": "data/nozawa_model.pkl",
         "csv": "data/Yuzawa_data.csv" # (例)
 	},
     "草津": {
-        "model": "data/kusatsu_model.pkl",
+        "model": "data/nozawa_model.pkl",
         "csv": "data/Kusatsu_data.csv" # (例)
     },
     "軽井沢": {
@@ -37,11 +37,11 @@ RESORT_DATA = {
         "csv": "data/Karuizawa_data.csv" # (例)
     },
     "猪苗代": {
-        "model": "data/inawashiro_model.pkl",
+        "model": "data/nozawa_model.pkl",
         "csv": "data/Inawashiro_data.csv" # (例)
     },
     "菅平": {
-        "model": "data/sugadaira_model.pkl",
+        "model": "data/nozawa_model.pkl",
         "csv": "data/Sugadaira_data.csv" # (例)
     },
     # (追加する場合はここに情報を追加します)
