@@ -106,7 +106,7 @@ def load_csv_data(resort_name):
     
     df = df.rename(columns={'最深積雪(cm)': 'y'})
 
-    feature_cols = ['平均気温(℃)', '降雪量合計(cm)']
+    feature_cols = ['日最高気温の平均(℃)', '降雪量日合計3cm以上日数(日)',  '日最高気温0℃未満日数(日)']
     df[feature_cols] = df[feature_cols].fillna(0)
     return df
 
