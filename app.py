@@ -21,17 +21,29 @@ RESORT_DATA = {
         "model": "data/nozawa_model.pkl", # 学習済モデルの呼び出し
         "csv": "data/nozawa_data.csv" # 分析に使った月次データ
     },
+    "草津": {
+        "model": "data/kusatsu_model.pkl",
+        "csv": "data/Kusatsu_data.csv"
+    },
+    "白馬": {
+        "model": "data/hakuba_model.pkl",
+        "csv": "data/Hakuba_data.csv"        
+    },
+    "湯沢": {
+        "model": "data/yuzawa_model.pkl",
+        "csv": "data/Yuzawa_data.csv"
+    },
   
     "軽井沢": {
         "model": "data/karuizawa_model.pkl",
         "csv": "data/Karuizawa_data.csv"
     },
     "猪苗代": {
-        "model": "data/nozawa_model.pkl",
+        "model": "data/inawashiro_model.pkl",
         "csv": "data/Inawashiro_data.csv"
     },
     "菅平": {
-        "model": "data/nozawa_model.pkl",
+        "model": "data/sugadaira_model.pkl",
         "csv": "data/Sugadaira_data.csv"
     },
     # (追加する場合はここに情報を追加します)
@@ -53,6 +65,7 @@ def create_comparison_bar_chart(forecast, historical_df):
     df['ds'] = pd.to_datetime(df['ds'])
 
     winter_months = [11, 12, 1, 2, 3, 4]
+    
     df = df[df['ds'].dt.month.isin(winter_months)]
     
 
@@ -104,27 +117,26 @@ def create_comparison_bar_chart(forecast, historical_df):
 def load_csv_data(resort_name):
     """月次CSVデータを読み込む"""
     file_path = RESORT_DATA[resort_name]["csv"]
-    if os.path.exists(file_path):
-        df = pd.read_csv(file_path)
-        # Prophetが日付として認識できるように変換します（お決まりですね）
-        df['ds'] = pd.to_datetime(df['年月'], format='%b-%y')
-        feature_cols = ['日最高気温の平均(℃)', '降雪量日合計3cm以上日数(日)','日最低気温0℃未満日数(日)']
-        df[feature_cols] = df[feature_cols].fillna(0)
-        return df
-    else:
-        return None
+    if os.path.exists(file_path):return None
+    df = pd.read_csv(file_path)
+    
+    # Prophetが日付として認識できるように変換します（お決まりですね）
+
+    df['ds'] = pd.to_datetime(df['年月'], format='%b-%y')
+    feature_cols = ['日最高気温の平均(℃)', '降雪量日合計3cm以上日数(日)','日最低気温0℃未満日数(日)']
+    df[feature_cols] = df[feature_cols].fillna(0)
+    return df
+
 
 # @st.cache_resource はモデルの読み込みを高速化する呪文（キャッシュ化）
 @st.cache_resource
 def load_model(resort_name):
     """月次モデルを読み込む"""
     file_path = RESORT_DATA[resort_name]["model"]
-    if os.path.exists(file_path):
-        with open(file_path, 'rb') as f:
-            model = pickle.load(f)
-        return model
-    else:
-        return None
+    if not os.path.exists(file_path): return None
+    with open(file_path, 'rb') as f:
+        model = pickle.load(f)
+    return model
 
 # --- 2. ユーザー操作部分（サイドバー） ---
 
