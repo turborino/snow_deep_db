@@ -18,7 +18,7 @@ st.write('AIが選択したスキーリゾートの未来の積雪量を予測�
 # このアプリの根幹部分ですね。
 RESORT_DATA = {
     "野沢": {
-        "model": "data/nozawa_model.pkl",　# 学習済モデルの呼び出し
+        "model": "data/nozawa_model.pkl", # 学習済モデルの呼び出し
         "csv": "data/nozawa_data.csv" # 分析に使った月次データ
     },
   
@@ -42,17 +42,19 @@ RESORT_DATA = {
 # ▼▼▼　以下は比較棒グラフを作成する関数になります ▼▼▼
 def create_comparison_bar_chart(forecast, historical_df):
     """過去10シーズンと未来予測を比較する棒グラフを作成する"""
-    
-    # データを結合し、シーズン情報を付与します
+    forecast_clipped = forecast.copy()
+    forecast_clipped['yhat'] = forecast_clipped['yhat'].clip(lower=0)
+
+    # 過去データと、0に丸めた「未来予測データ」を結合し、シーズン情報を付与します
     df = pd.concat([
-        historical_df.rename(columns={'y': 'value'}), # 過去データ
-        forecast[forecast['ds'] > historical_df['ds'].max()].rename(columns={'yhat': 'value'}) # 未来データ
+        historical_df.rename(columns={'y': 'value'}),
+        forecast_clipped[forecast_clipped['ds'] > historical_df['ds'].max()].rename(columns={'yhat': 'value'})
     ])
     df['ds'] = pd.to_datetime(df['ds'])
 
-    # スキーシーズンを定義（例: 11月から翌年4月）します
     winter_months = [11, 12, 1, 2, 3, 4]
     df = df[df['ds'].dt.month.isin(winter_months)]
+    
 
     # シーズンを定義する関数です (2023年11月 -> 2023-24シーズン)
     def get_season(date):
@@ -67,12 +69,8 @@ def create_comparison_bar_chart(forecast, historical_df):
     target_seasons = all_seasons[-11:] 
     df = df[df['season'].isin(target_seasons)]
 
-    # 月とシーズンでピボットテーブルを作成します
     # pivot_tableで使うために、月の列を明示的に作成します
-    df['month'] = df['ds'].dt.month
-    pivot_df = df.pivot_table(index='month', columns='season', values='value')
- 
-
+    pivot_df = df.pivot_table(index=df['ds'].dt.month, columns='season', values='value')
     pivot_df = pivot_df.reindex(winter_months) # 月の並び順を固定
     
     # グラフの作成を行います
@@ -149,7 +147,7 @@ if execute_button:
     model = load_model(selected_resort)
     historical_df = load_csv_data(selected_resort)
 	
-　　# モデルとデータの両方が正常に読み込めた場合のみ、予測処理に進みます
+    # モデルとデータの両方が正常に読み込めた場合のみ、予測処理に進みます
     if model and historical_df is not None:
 		
 		# 処理中にスピナー（くるくる回るアイコン）を表示して、ユーザーに待機中であることを示します
