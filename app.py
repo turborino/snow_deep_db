@@ -40,6 +40,7 @@ RESORT_DATA = {
     },
 
 }
+
 def create_comparison_bar_chart(forecast, historical_df):
     historical_clipped = historical_df.copy()
     historical_clipped['value'] = historical_clipped['value'].clip(lower=0)
@@ -103,7 +104,6 @@ def load_csv_data(resort_name):
     df = pd.read_csv(file_path)
     df['ds'] = pd.to_datetime(df['年月'], format='%b-%y')
     
-    # ★★★【重要】この列名変更の処理が抜けていたのがエラーの根本原因でした ★★★
     df = df.rename(columns={'最深積雪(cm)': 'y'})
 
     feature_cols = ['平均気温(℃)', '降雪量合計(cm)']
@@ -147,8 +147,15 @@ if execute_button:
 
         with st.expander("詳細な時系列予測グラフを見る"):
             st.subheader('時系列予測グラフ全体')
-            fig_prophet = plot_plotly(model, forecast)
+            # ▼▼▼【修正箇所】ここから ▼▼▼
+            # グラフ描画用に、予測値(yhat)のマイナス値を0に丸めたデータを作成
+            forecast_graph_display = forecast.copy()
+            forecast_graph_display['yhat'] = forecast_graph_display['yhat'].clip(lower=0)
+            
+            # 修正したデータでグラフを描画
+            fig_prophet = plot_plotly(model, forecast_graph_display)
             st.plotly_chart(fig_prophet, use_container_width=True)
+            # ▲▲▲【修正箇所】ここまで ▲▲▲
 
         st.subheader('予測データ詳細')
         future_forecast_display = forecast[forecast['ds'] > historical_df['ds'].max()].copy()
