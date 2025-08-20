@@ -11,27 +11,27 @@ st.write('AIが選択したスキーリゾートの未来の積雪量を月単�
 
 RESORT_DATA = {
     "野沢温泉": {
-        "model": "data/nozawa_monthly_model.pkl",
+        "model": "data/nozawa_model.pkl",
         "csv": "data/nozawa_data.csv"
     },
     "湯沢": {
-        "model": "data/yuzawa_monthly_model.pkl",
+        "model": "data/yuzawa_model.pkl",
         "csv": "data/Yuzawa_data.csv"
     },
     "白馬": {
-        "model": "data/hakuba_monthly_model.pkl",
+        "model": "data/hakuba_model.pkl",
         "csv": "data/Hakuba_data.csv"
     },
     "軽井沢": {
-        "model": "data/karuizawa_monthly_model.pkl",
+        "model": "data/karuizawa_model.pkl",
         "csv": "data/Karuizawa_data.csv"
     },
     "菅平": {
-        "model": "data/sugadaira_monthly_model.pkl",
+        "model": "data/sugadaira_model.pkl",
         "csv": "data/Sugadaira_data.csv"
     },
     "草津": {
-        "model": "data/kusatsu_monthly_model.pkl",
+        "model": "data/kusatsu_model.pkl",
         "csv": "data/Kusatsu_data.csv"
     },
     "猪苗代": {
