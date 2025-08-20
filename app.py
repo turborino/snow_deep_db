@@ -206,18 +206,3 @@ if execute_button:
         st.error(f'エラー: {selected_resort}のモデルまたはCSVファイルが見つかりません。')
 else:
     st.info('サイドバーで設定を選んで「予測を実行」ボタンを押してください。')
-
-
-
-
-
-動画
-
-Deep Research
-
-Canvas
-
-画像
-
-
-Gemini は不正確な情報を表示することがあるため、生成された回答を
