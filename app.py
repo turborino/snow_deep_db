@@ -42,6 +42,9 @@ RESORT_DATA = {
 }
 
 def create_comparison_bar_chart(forecast, historical_df):
+    historical_clipped = historical_df.copy()
+    historical_clipped['value'] = historical_clipped['value'].clip(lower=0)
+    
     forecast_clipped = forecast.copy()
     forecast_clipped['yhat'] = forecast_clipped['yhat'].clip(lower=0)
 
