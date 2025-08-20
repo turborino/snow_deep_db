@@ -40,7 +40,6 @@ RESORT_DATA = {
     },
 
 }
-
 def create_comparison_bar_chart(forecast, historical_df):
     historical_clipped = historical_df.copy()
     historical_clipped['value'] = historical_clipped['value'].clip(lower=0)
@@ -49,8 +48,8 @@ def create_comparison_bar_chart(forecast, historical_df):
     forecast_clipped['yhat'] = forecast_clipped['yhat'].clip(lower=0)
 
     df = pd.concat([
-        historical_df.rename(columns={'y': 'value'}),
-        forecast_clipped[forecast_clipped['ds'] > historical_df['ds'].max()].rename(columns={'yhat': 'value'})
+        historical_clipped,
+        forecast_clipped[forecast_clipped['ds'] > historical_clipped['ds'].max()].rename(columns={'yhat': 'value'})
     ])
     df['ds'] = pd.to_datetime(df['ds'])
 
@@ -103,6 +102,10 @@ def load_csv_data(resort_name):
     if not os.path.exists(file_path): return None
     df = pd.read_csv(file_path)
     df['ds'] = pd.to_datetime(df['年月'], format='%b-%y')
+    
+    # ★★★【重要】この列名変更の処理が抜けていたのがエラーの根本原因でした ★★★
+    df = df.rename(columns={'最深積雪(cm)': 'y'})
+
     feature_cols = ['平均気温(℃)', '降雪量合計(cm)']
     df[feature_cols] = df[feature_cols].fillna(0)
     return df
