@@ -154,7 +154,6 @@ months_to_predict = st.sidebar.number_input(
 execute_button = st.sidebar.button('予測を実行 →')
 
 # --- 3. 予測と結果表示（メイン画面） ---
-
 if execute_button:
     st.header(f'📍 {selected_resort} の予測結果')
 
@@ -163,48 +162,62 @@ if execute_button:
 
     if model and historical_df is not None:
         with st.spinner('AIが予測を計算しています...'):
-            # 1. 未来の「月初の日付」リストを作成
-            future_df = model.make_future_dataframe(
-                periods=months_to_predict, freq='MS'
-            )
-
-            # 2. 未来の「天気」（追加特徴量）を推測してfuture_dfに結合する
+            future_df = model.make_future_dataframe(periods=months_to_predict, freq='MS')
             regressor_names = list(model.extra_regressors.keys())
-            if regressor_names: # 追加特徴量がある場合のみ実行
+            if regressor_names:
                 historical_df['month'] = historical_df['ds'].dt.month
                 seasonal_averages = historical_df.groupby('month')[regressor_names].mean().reset_index()
-
                 future_df['month'] = future_df['ds'].dt.month
-                future_df = pd.merge(future_df, seasonal_averages, on='month', how='left')
-                future_df = future_df.drop(columns=['month'])
-                
-                # ▼▼▼【重要】ここが今回の修正ポイント ▼▼▼
-                # 前方と後方の両方から値を埋めて、NaNが残らないようにする
+                future_df = pd.merge(future_df, seasonal_averages, on='month', how='left').drop(columns=['month'])
                 future_df = future_df.fillna(method='ffill').fillna(method='bfill')
-                # ▲▲▲ 修正ポイントここまで ▲▲▲
-
-            # 3. 特徴量が入ったfuture_dfで予測を実行
             forecast = model.predict(future_df)
 
-        # ▼▼▼【グラフ表示の変更点】▼▼▼
         st.subheader('過去実績との比較グラフ')
-        # 新しい関数を呼び出して比較棒グラフを作成・表示
         comparison_fig = create_comparison_bar_chart(forecast, historical_df.rename(columns={'y': 'value'}))
         st.plotly_chart(comparison_fig, use_container_width=True)
-        # ▲▲▲ 変更点ここまで ▲▲▲
 
-        # 念のため、元のProphetの予測グラフも残しておく（折りたたみ表示）
         with st.expander("詳細な時系列予測グラフを見る"):
             st.subheader('時系列予測グラフ全体')
             fig_prophet = plot_plotly(model, forecast)
             st.plotly_chart(fig_prophet, use_container_width=True)
 
         st.subheader('予測データ詳細')
-        future_forecast = forecast[forecast['ds'] > historical_df['ds'].max()]
-        st.dataframe(future_forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].rename(
-            columns={'ds': '日付', 'yhat': '予測値(cm)', 'yhat_lower': '予測下限(cm)', 'yhat_upper': '予測上限(cm)'}
-        ))
+        # ▼▼▼【最終修正】ここから ▼▼▼
+        # 表示用のデータフレームを準備
+        future_forecast_display = forecast[forecast['ds'] > historical_df['ds'].max()].copy()
+        
+        # 予測値(yhat, yhat_lower, yhat_upper)がマイナスの場合、0に丸める
+        prediction_cols = ['yhat', 'yhat_lower', 'yhat_upper']
+        for col in prediction_cols:
+            future_forecast_display[col] = future_forecast_display[col].clip(lower=0)
+
+        # 'ds'列（日付）の表示形式を 'YYYY-MM' (例: 2025-08) の文字列に変換
+        future_forecast_display['ds'] = future_forecast_display['ds'].dt.strftime('%Y-%m')
+        
+        # 整形したデータを、行番号を非表示にして表示
+        st.dataframe(
+            future_forecast_display[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].rename(
+                columns={'ds': '年月', 'yhat': '予測値(cm)', 'yhat_lower': '予測下限(cm)', 'yhat_upper': '予測上限(cm)'}
+            ),
+            hide_index=True # ★★★ 行番号を非表示にする設定 ★★★
+        )
+        # ▲▲▲【最終修正】ここまで ▲▲▲
     else:
         st.error(f'エラー: {selected_resort}のモデルまたはCSVファイルが見つかりません。')
 else:
     st.info('サイドバーで設定を選んで「予測を実行」ボタンを押してください。')
+
+
+
+
+
+動画
+
+Deep Research
+
+Canvas
+
+画像
+
+
+Gemini は不正確な情報を表示することがあるため、生成された回答を
