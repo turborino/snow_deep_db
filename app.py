@@ -55,22 +55,23 @@ RESORT_DATA = {
 # ▼▼▼　以下は比較棒グラフを作成する関数になります ▼▼▼
 def create_comparison_bar_chart(forecast, historical_df):
     """過去10シーズンと未来予測を比較する棒グラフを作成する"""
+    
+    # 予測値(yhat)のマイナス値を0に丸める
     forecast_clipped = forecast.copy()
     forecast_clipped['yhat'] = forecast_clipped['yhat'].clip(lower=0)
 
-    # 過去データと、0に丸めた「未来予測データ」を結合し、シーズン情報を付与します
+    # 過去データと、0に丸めた「未来予測データ」を結合
     df = pd.concat([
         historical_df.rename(columns={'y': 'value'}),
         forecast_clipped[forecast_clipped['ds'] > historical_df['ds'].max()].rename(columns={'yhat': 'value'})
     ])
     df['ds'] = pd.to_datetime(df['ds'])
 
+    # スキーシーズンとして比較したい月を定義
     winter_months = [11, 12, 1, 2, 3, 4]
-    
     df = df[df['ds'].dt.month.isin(winter_months)]
-    
 
-    # シーズンを定義する関数です (2023年11月 -> 2023-24シーズン)
+    # 日付から「シーズン」(例: '2023-2024')を判定する関数
     def get_season(date):
         if date.month >= 11:
             return f"{date.year}-{date.year + 1}"
@@ -78,37 +79,42 @@ def create_comparison_bar_chart(forecast, historical_df):
             return f"{date.year - 1}-{date.year}"
     df['season'] = df['ds'].apply(get_season)
 
-    # 直近10シーズンと未来の1シーズンに絞り込みます
+    # 比較対象とするシーズンを、直近10シーズンと未来の1シーズンに絞り込む
     all_seasons = sorted(df['season'].unique())
     target_seasons = all_seasons[-11:] 
     df = df[df['season'].isin(target_seasons)]
 
-    # pivot_tableで使うために、月の列を明示的に作成します
+    # グラフ作成のためにデータをピボット
     pivot_df = df.pivot_table(index=df['ds'].dt.month, columns='season', values='value')
     pivot_df = pivot_df.reindex(winter_months) # 月の並び順を固定
     
-    # グラフの作成を行います
+    # グラフの作成
     fig = go.Figure()
     month_labels = {11: '11月', 12: '12月', 1: '1月', 2: '2月', 3: '3月', 4: '4月'}
     
+    # 未来の予測シーズン名を取得（最も新しいシーズン名）
+    future_season_name = pivot_df.columns[-1]
+
+    # シーズンごとに棒グラフを追加していく
     for season in pivot_df.columns:
-        # 未来の予測シーズンは色を変えます
-        is_future = pivot_df[season].isnull().sum() < len(pivot_df)
+        # 未来の予測シーズンかどうかを判定
+        is_future = (season == future_season_name)
         
         fig.add_trace(go.Bar(
             x=[month_labels.get(i) for i in pivot_df.index],
             y=pivot_df[season],
             name=season,
-            marker_color='crimson' if is_future else 'cornflowerblue',
-            opacity=1.0 if is_future else 0.6
+            marker_color='crimson' if is_future else 'cornflowerblue', # 未来なら赤、過去なら青
+            opacity=1.0 if is_future else 0.6 # 未来を濃く、過去を少し薄く
         ))
 
+    # グラフ全体のデザインを調整
     fig.update_layout(
         title='<b>過去10シーズンと未来予測の月別積雪量比較</b>',
         xaxis_title='月',
         yaxis_title='積雪量 (cm)',
         legend_title='シーズン',
-        barmode='group', # グループ化された棒グラフ
+        barmode='group',
         plot_bgcolor='white'
     )
     return fig
