@@ -150,6 +150,7 @@ months_to_predict = st.sidebar.number_input(
     "何か月先まで予測しますか？",
     min_value=6, max_value=36, value=12, step=1
 )
+
 execute_button = st.sidebar.button('予測を実行 →')
 
 # --- 3. 予測と結果表示（メイン画面） ---
