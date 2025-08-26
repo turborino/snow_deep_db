@@ -145,17 +145,7 @@ if execute_button:
         comparison_fig = create_comparison_bar_chart(forecast, historical_df.rename(columns={'y': 'value'}))
         st.plotly_chart(comparison_fig, use_container_width=True)
 
-        with st.expander("詳細な時系列予測グラフを見る"):
-            st.subheader('時系列予測グラフ全体')
-            # ▼▼▼【修正箇所】ここから ▼▼▼
-            # グラフ描画用に、予測値(yhat)のマイナス値を0に丸めたデータを作成
-            forecast_graph_display = forecast.copy()
-            forecast_graph_display['yhat'] = forecast_graph_display['yhat'].clip(lower=0)
-            
-            # 修正したデータでグラフを描画
-            fig_prophet = plot_plotly(model, forecast_graph_display)
-            st.plotly_chart(fig_prophet, use_container_width=True)
-            # ▲▲▲【修正箇所】ここまで ▲▲▲
+
 
         st.subheader('予測データ詳細')
         future_forecast_display = forecast[forecast['ds'] > historical_df['ds'].max()].copy()
