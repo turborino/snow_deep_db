@@ -1,8 +1,9 @@
 import json
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
+from django.db import connection
 from .forms import PredictionForm
 from .models import SkiResort
 from .utils import load_model, load_csv_data, create_prediction_data, create_comparison_data
@@ -69,3 +70,26 @@ def predict(request):
             'success': False,
             'error': f'予測計算中にエラーが発生しました: {str(e)}'
         }, status=500)
+
+
+def health_check(request):
+    """ALB ヘルスチェック用エンドポイント"""
+    try:
+        # データベース接続確認
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+        
+        # スキー場データ確認
+        resort_count = SkiResort.objects.count()
+        
+        return HttpResponse(
+            f"OK - DB Connected, {resort_count} resorts available",
+            status=200,
+            content_type="text/plain"
+        )
+    except Exception as e:
+        return HttpResponse(
+            f"ERROR - {str(e)}",
+            status=503,
+            content_type="text/plain"
+        )

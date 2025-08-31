@@ -1,0 +1,47 @@
+# Snow Deep DB Environment Variables Template
+# Copy this file to .env and fill in the actual values
+
+# Django Configuration
+DJANGO_SECRET_KEY=your-super-secret-key-here-change-this-to-random-50-chars
+DJANGO_SETTINGS_MODULE=snow_predict.settings_production
+DJANGO_DEBUG=False
+
+# Database Configuration (RDS PostgreSQL)
+DB_NAME=snowdeepdb
+DB_USER=postgres
+DB_PASSWORD=your-secure-database-password
+DB_HOST=snow-deep-db.cluster-xxxxx.ap-northeast-1.rds.amazonaws.com
+DB_PORT=5432
+
+# Domain Configuration
+DOMAIN_NAME=your-domain.com
+ALLOWED_HOSTS=your-domain.com,www.your-domain.com,.amazonaws.com
+
+# Email Configuration (AWS SES)
+EMAIL_HOST=email-smtp.ap-northeast-1.amazonaws.com
+EMAIL_PORT=587
+EMAIL_HOST_USER=your-ses-smtp-username
+EMAIL_HOST_PASSWORD=your-ses-smtp-password
+DEFAULT_FROM_EMAIL=noreply@your-domain.com
+
+# AWS Configuration (optional)
+AWS_ACCESS_KEY_ID=your-aws-access-key
+AWS_SECRET_ACCESS_KEY=your-aws-secret-key
+AWS_DEFAULT_REGION=ap-northeast-1
+AWS_STORAGE_BUCKET_NAME=your-s3-bucket-name
+
+# Cache Configuration (Redis - optional)
+REDIS_URL=redis://localhost:6379/0
+
+# Monitoring (Sentry - optional)
+SENTRY_DSN=https://your-sentry-dsn@sentry.io/project-id
+
+# Security Settings
+SECURE_SSL_REDIRECT=False
+SECURE_PROXY_SSL_HEADER_NAME=HTTP_X_FORWARDED_PROTO
+SECURE_PROXY_SSL_HEADER_VALUE=https
+
+# Application Settings
+SNOW_DEEP_MAX_PREDICTION_MONTHS=12
+SNOW_DEEP_CACHE_TIMEOUT=3600
+
